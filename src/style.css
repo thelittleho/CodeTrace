@@ -3,7 +3,7 @@
   --sidebar-bg: #f9f8f6;
   --text-main: #33322e;
   --text-muted: #8c8b88;
-  --accent: #d97706; /* Claude 오렌지 최적화 */
+  --accent: #d97706;
   --accent-light: #fff5f2;
   --border-color: #edebe8;
   --hover-bg: #f2f1ee;
@@ -17,7 +17,7 @@
   --sidebar-bg: #141414;
   --text-main: #e0e0e0;
   --text-muted: #a0a0a0;
-  --accent: #f59e0b; /* 다크모드용 조금 더 밝은 오렌지 */
+  --accent: #f59e0b;
   --accent-light: #2d241a;
   --border-color: #2d2d2d;
   --hover-bg: #242424;
@@ -41,7 +41,7 @@ body {
   display: flex;
 }
 
-/* Sidebar Styling */
+/* Sidebar Basic Layout */
 .sidebar {
   width: 300px;
   background-color: var(--sidebar-bg);
@@ -114,7 +114,7 @@ body {
   opacity: 0.9;
 }
 
-/* Main Content Styling */
+/* Main Content Basic Layout */
 .main-content {
   flex-grow: 1;
   display: flex;
@@ -166,7 +166,7 @@ body {
   box-sizing: border-box;
 }
 
-/* Unified Editor and View Style */
+/* Editor & View Styles */
 .bear-editor, .markdown-view {
   font-size: 18px;
   line-height: 1.8;
@@ -186,7 +186,7 @@ body {
   color: var(--text-main);
 }
 
-/* Markdown Rendering Styles */
+/* Markdown View Content Styling */
 .markdown-view h1, .markdown-view h2 {
   font-size: 1.6rem;
   font-weight: 800;
@@ -216,14 +216,12 @@ body {
   background-color: var(--input-bg);
   border-radius: 12px;
   box-shadow: 0 0 0 1px var(--border-color);
-  font-family: var(--font-family);
 }
 
 .markdown-view th, .markdown-view td {
   padding: 14px 18px;
   border: 1px solid var(--border-color);
   font-size: 15px;
-  color: var(--text-main);
 }
 
 .markdown-view th {
@@ -232,14 +230,23 @@ body {
   color: var(--accent);
 }
 
-.markdown-view code {
+.markdown-view :not(pre) > code {
   background-color: var(--accent-light);
   padding: 2px 6px;
   border-radius: 5px;
-  font-family: "JetBrains Mono", "Cascadia Code", "Fira Code", monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 0.85em;
   color: var(--accent);
   font-weight: 600;
+}
+
+.markdown-view pre {
+  background-color: var(--sidebar-bg);
+  padding: 20px;
+  border-radius: 12px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 1px solid var(--border-color);
 }
 
 .markdown-view blockquote {
@@ -247,33 +254,17 @@ body {
   padding: 10px 24px;
   border-left: 4px solid var(--accent);
   background-color: var(--accent-light);
-  color: var(--text-main);
-  opacity: 0.8;
   border-radius: 0 8px 8px 0;
-  font-family: var(--font-family);
 }
 
-.markdown-view ul, .markdown-view ol {
-  padding-left: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.markdown-view li { margin-bottom: 0.6rem; }
 .markdown-view a {
-  color: #ff9d6e; /* 연한 주황색 */
+  color: #ff9d6e;
   text-decoration: none;
   border-bottom: 1px solid rgba(255, 157, 110, 0.3);
-  transition: all 0.2s;
-}
-
-.markdown-view a:hover {
-  background-color: var(--accent-light);
-  border-bottom-color: var(--accent);
 }
 
 .empty-state {
   display: flex;
-...
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -282,16 +273,15 @@ body {
   opacity: 0.4;
 }
 
+.empty-icon { font-size: 48px; margin-bottom: 16px; }
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #e5e4e1; border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #d1d0cc; }
-
 .dark-mode ::-webkit-scrollbar-thumb { background: #3d3d3d; }
-.dark-mode ::-webkit-scrollbar-thumb:hover { background: #4d4d4d; }
 
-/* Existing Buttons Optimization */
+/* Icon Buttons Shared Style */
 .toggle-icon-btn {
   background: none;
   border: none;
