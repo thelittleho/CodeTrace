@@ -27,7 +27,8 @@ const updateContent = async () => {
   if (isMarkdownFile.value) {
     renderedMarkdown.value = await renderMarkdown(props.selectedFile.content)
   } else {
-    highlightedCode.value = await highlightCode(props.selectedFile.content)
+    const ext = props.selectedFile.name.split('.').pop()
+    highlightedCode.value = await highlightCode(props.selectedFile.content, ext)
   }
 }
 

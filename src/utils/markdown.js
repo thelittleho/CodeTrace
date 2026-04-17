@@ -3,14 +3,16 @@ let hljs = null
 
 export async function renderMarkdown(content) {
   if (!marked) {
+    // Dynamic imports for performance
     const [markedMod, { markedHighlight }, hljsMod] = await Promise.all([
       import('marked'),
       import('marked-highlight'),
       import('highlight.js')
     ])
     
-    marked = markedMod.marked
-    hljs = hljsMod.default
+    // Some environments might not have .default or might have it differently
+    marked = markedMod.marked || markedMod
+    hljs = hljsMod.default || hljsMod
 
     marked.use(
       markedHighlight({
@@ -34,7 +36,16 @@ export async function renderMarkdown(content) {
 export async function highlightCode(code, lang) {
   if (!hljs) {
     const hljsMod = await import('highlight.js')
-    hljs = hljsMod.default
+    hljs = hljsMod.default || hljsMod
   }
-  return hljs.highlightAuto(code).value
+  
+  try {
+    if (lang && hljs.getLanguage(lang)) {
+      return hljs.highlight(code, { language: lang }).value
+    }
+    return hljs.highlightAuto(code).value
+  } catch (e) {
+    console.error('Highlight.js error:', e)
+    return code
+  }
 }

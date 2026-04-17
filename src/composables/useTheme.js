@@ -24,16 +24,24 @@ export function useTheme() {
 
   const initTheme = () => {
     const savedTheme = localStorage.getItem('theme')
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    const wantsDark = savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    
+    if (wantsDark) {
       isDarkMode.value = true
       document.documentElement.classList.add('dark-mode')
-      
-      const link = document.createElement('link')
-      link.id = 'hljs-theme'
-      link.rel = 'stylesheet'
-      link.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
-      document.head.appendChild(link)
     }
+
+    // Always add the link element to ensure highlighting works in both modes
+    const existingLink = document.getElementById('hljs-theme')
+    if (existingLink) existingLink.remove()
+    
+    const link = document.createElement('link')
+    link.id = 'hljs-theme'
+    link.rel = 'stylesheet'
+    link.href = isDarkMode.value 
+      ? 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css'
+      : 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css'
+    document.head.appendChild(link)
   }
 
   return {
