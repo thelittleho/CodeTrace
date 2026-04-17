@@ -211,27 +211,43 @@ body {
 
 .markdown-view table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate; /* 테두리 둥글게 처리를 위해 separate 사용 */
+  border-spacing: 0;
   margin: 2rem 0;
   background-color: var(--input-bg);
   border-radius: 12px;
-  box-shadow: 0 0 0 1px var(--border-color);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  font-family: var(--font-family);
 }
 
 .markdown-view th, .markdown-view td {
-  padding: 14px 18px;
-  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
   font-size: 15px;
+  text-align: left;
+}
+
+.markdown-view tr:last-child td {
+  border-bottom: none; /* 마지막 행은 하단 선 제거 */
 }
 
 .markdown-view th {
   background-color: var(--sidebar-bg);
   font-weight: 700;
   color: var(--accent);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}
+
+/* 행 오버효과 (Bear 스타일의 세밀함) */
+.markdown-view tr:hover td {
+  background-color: var(--hover-bg);
 }
 
 .markdown-view :not(pre) > code {
-  background-color: var(--accent-light);
+  background-color: var(--hover-bg);
   padding: 2px 6px;
   border-radius: 5px;
   font-family: "JetBrains Mono", monospace;
@@ -242,11 +258,23 @@ body {
 
 .markdown-view pre {
   background-color: var(--sidebar-bg);
-  padding: 20px;
+  padding: 24px;
   border-radius: 12px;
   overflow-x: auto;
   margin: 1.5rem 0;
   border: 1px solid var(--border-color);
+  transition: background-color 0.3s, border-color 0.3s;
+}
+
+.dark-mode .markdown-view pre {
+  background-color: var(--input-bg);
+  border-color: transparent;
+}
+
+.markdown-view pre code {
+  font-family: "JetBrains Mono", "Cascadia Code", "Fira Code", monospace;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .markdown-view blockquote {

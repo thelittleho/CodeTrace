@@ -63,7 +63,7 @@ const importToNote = () => {
 
   const appendContent = `\n\n---
 ### 📂 Attached from GitHub: ${selectedGithubFile.value.name}
-[Source Link](${selectedGithubFile.value.html_url})
+[View Original Source on GitHub](${selectedGithubFile.value.html_url})
 
 \`\`\`${lang}
 ${selectedGithubFile.value.content}

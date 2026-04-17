@@ -3,16 +3,21 @@ let hljs = null
 
 export async function renderMarkdown(content) {
   if (!marked) {
-    // Dynamic imports for performance
     const [markedMod, { markedHighlight }, hljsMod] = await Promise.all([
       import('marked'),
       import('marked-highlight'),
       import('highlight.js')
     ])
     
-    // Some environments might not have .default or might have it differently
     marked = markedMod.marked || markedMod
     hljs = hljsMod.default || hljsMod
+
+    // 커스텀 렌더러 설정: 모든 링크를 새 탭에서 열기
+    const renderer = new marked.Renderer();
+    renderer.link = (href, title, text) => {
+      const titleAttr = title ? ` title="${title}"` : '';
+      return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
+    };
 
     marked.use(
       markedHighlight({
@@ -22,7 +27,8 @@ export async function renderMarkdown(content) {
           const language = hljs.getLanguage(lang) ? lang : 'plaintext';
           return hljs.highlight(code, { language }).value;
         }
-      })
+      }),
+      { renderer } // 커스텀 렌더러 등록
     )
 
     marked.setOptions({
