@@ -99,10 +99,40 @@ body {
   font-weight: 800;
   color: var(--accent);
   font-size: 11px;
-  margin-bottom: 2px;
-  display: block;
+  display: inline-block;
   opacity: 0.8;
   font-family: var(--font-family);
+}
+
+.problem-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.platform-tag {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.platform-tag.programmers {
+  background-color: #1e2a3b;
+  color: #00b0ff;
+}
+
+.platform-tag.codeup {
+  background-color: #e6f7ff;
+  color: #1890ff;
+}
+
+.dark-mode .platform-tag.codeup {
+  background-color: #111d2c;
+  color: #177ddc;
 }
 
 .problem-title {
@@ -208,6 +238,14 @@ body {
 }
 
 .markdown-view p { margin-bottom: 1.5rem; }
+
+.markdown-view img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.5rem 0;
+  border-radius: 8px;
+}
 
 .markdown-view table {
   width: 100%;

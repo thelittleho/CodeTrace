@@ -39,6 +39,7 @@ const filteredProblems = computed(() => {
   return props.problems.filter(p => 
     p.title.toLowerCase().includes(query) || 
     p.id.includes(query) ||
+    (p.platform && p.platform.toLowerCase().includes(query)) ||
     (p.tags && p.tags.some(tag => tag.toLowerCase().includes(query)))
   )
 })
@@ -71,7 +72,7 @@ const isCurrentRepoFavorited = computed(() => {
     <!-- Notes Tab -->
     <template v-if="activeTab === 'notes'">
       <div class="input-container">
-        <input v-model="inputUrl" @keyup.enter="handleAddProblem" placeholder="프로그래머스 URL 입력" class="url-input" />
+        <input v-model="inputUrl" @keyup.enter="handleAddProblem" placeholder="프로그래머스/코드업 URL 입력" class="url-input" />
         <input v-model="searchQuery" placeholder="제목, ID, 태그로 검색" class="search-input" />
       </div>
 
@@ -79,10 +80,13 @@ const isCurrentRepoFavorited = computed(() => {
         <div v-if="!currentUser" class="auth-message">로그인하여 데이터를 클라우드에 저장하세요.</div>
         <div v-else-if="isLoading" class="auth-message">불러오는 중...</div>
         <div v-else-if="filteredProblems.length === 0" class="auth-message">검색 결과가 없습니다.</div>
-        <div v-else v-for="p in filteredProblems" :key="p.id" class="problem-item" :class="{ active: selectedId === p.id }" @click="$emit('update:selectedId', p.id)">
+        <div v-else v-for="p in filteredProblems" :key="p.id + (p.platform || '')" class="problem-item" :class="{ active: selectedId === p.id }" @click="$emit('update:selectedId', p.id)">
           <div class="problem-item-inner">
             <div class="problem-info">
-              <span class="problem-id">{{ p.id }}</span>
+              <div class="problem-meta">
+                <span class="problem-id">{{ p.id }}</span>
+                <span v-if="p.platform" class="platform-tag" :class="p.platform.toLowerCase()">{{ p.platform }}</span>
+              </div>
               <span class="problem-title">{{ p.title }}</span>
               <div v-if="p.tags && p.tags.length > 0" class="mini-tags">
                 <span v-for="tag in p.tags" :key="tag" class="mini-tag">#{{ tag }}</span>

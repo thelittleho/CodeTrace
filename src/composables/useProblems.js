@@ -1,6 +1,6 @@
 import { ref, watch, onUnmounted } from 'vue'
 import { db, doc, setDoc, onSnapshot, updateDoc, arrayUnion, arrayRemove } from '../firebase'
-import { parseProgrammersHtml } from '../utils/parser'
+import { parseProgrammersHtml, parseCodeUpHtml, detectPlatform } from '../utils/parser'
 
 export function useProblems(currentUser) {
   const problems = ref([])
@@ -37,14 +37,23 @@ export function useProblems(currentUser) {
     if (!url.trim() || !currentUser.value) return
     
     try {
-      const idMatch = url.match(/learn\/courses\/30\/lessons\/(\d+)/)
-      if (!idMatch) {
-        alert('프로그래머스 문제 URL을 입력해주세요.')
+      const platform = detectPlatform(url)
+      let id = null
+
+      if (platform === 'Programmers') {
+        const idMatch = url.match(/learn\/courses\/30\/lessons\/(\d+)/)
+        if (idMatch) id = idMatch[1]
+      } else if (platform === 'CodeUp') {
+        const idMatch = url.match(/id=(\d+)/)
+        if (idMatch) id = idMatch[1]
+      }
+
+      if (!id) {
+        alert('지원하지 않는 문제 URL 형식이거나 올바르지 않은 주소입니다.')
         return
       }
       
-      const id = idMatch[1]
-      if (problems.value.some(p => p.id === id)) {
+      if (problems.value.some(p => p.id === id && p.platform === platform)) {
         alert('이미 추가된 문제입니다.')
         return
       }
@@ -69,15 +78,29 @@ export function useProblems(currentUser) {
               const data = await res.json()
               htmlContent = data.contents || data
             }
-            if (htmlContent && htmlContent.includes('school.programmers.co.kr')) break
+            if (htmlContent && (htmlContent.includes('school.programmers.co.kr') || htmlContent.includes('codeup.kr'))) break
           }
         } catch (e) { console.warn('프록시 시도 실패') }
       }
 
       if (!htmlContent) throw new Error('데이터 로드 실패')
 
-      const { title, content } = parseProgrammersHtml(htmlContent)
-      const newProblem = { id, title, url, memo: content, tags: [], createdAt: Date.now() }
+      let title, content
+      if (platform === 'Programmers') {
+        ({ title, content } = parseProgrammersHtml(htmlContent))
+      } else {
+        ({ title, content } = parseCodeUpHtml(htmlContent))
+      }
+
+      const newProblem = { 
+        id, 
+        title, 
+        url, 
+        memo: content, 
+        tags: [], 
+        platform,
+        createdAt: Date.now() 
+      }
       
       await updateDoc(doc(db, "users", currentUser.value.uid), { 
         problems: arrayUnion(newProblem) 
@@ -85,6 +108,7 @@ export function useProblems(currentUser) {
       
       return id
     } catch (err) {
+      console.error(err)
       alert('문제를 가져오지 못했습니다.')
     } finally { 
       isLoading.value = false 

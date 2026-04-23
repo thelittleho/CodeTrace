@@ -25,7 +25,13 @@ const updateContent = async () => {
   }
 
   if (isMarkdownFile.value) {
-    renderedMarkdown.value = await renderMarkdown(props.selectedFile.content)
+    // 상대 경로 이미지 및 링크 해결을 위한 baseUrl 계산
+    // download_url 예: https://raw.githubusercontent.com/user/repo/main/path/to/file.md
+    // baseUrl은 https://raw.githubusercontent.com/user/repo/main/path/to/ 가 되어야 함
+    const downloadUrl = props.selectedFile.download_url
+    const baseUrl = downloadUrl ? downloadUrl.substring(0, downloadUrl.lastIndexOf('/') + 1) : ''
+    
+    renderedMarkdown.value = await renderMarkdown(props.selectedFile.content, { baseUrl })
   } else {
     const ext = props.selectedFile.name.split('.').pop()
     highlightedCode.value = await highlightCode(props.selectedFile.content, ext)

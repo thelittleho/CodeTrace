@@ -1,23 +1,26 @@
 let marked = null
 let hljs = null
 
-export async function renderMarkdown(content) {
+export async function renderMarkdown(content, options = {}) {
   if (!marked) {
-    const [markedMod, { markedHighlight }, hljsMod] = await Promise.all([
+    const [markedMod, { markedHighlight }, hljsMod, { default: markedKatex }] = await Promise.all([
       import('marked'),
       import('marked-highlight'),
-      import('highlight.js')
+      import('highlight.js'),
+      import('marked-katex-extension')
     ])
     
     marked = markedMod.marked || markedMod
     hljs = hljsMod.default || hljsMod
 
-    // 커스텀 렌더러 설정: 모든 링크를 새 탭에서 열기
-    const renderer = new marked.Renderer();
-    renderer.link = (href, title, text) => {
-      const titleAttr = title ? ` title="${title}"` : '';
-      return `<a href="${href}"${titleAttr} target="_blank" rel="noopener noreferrer">${text}</a>`;
-    };
+    // KateX CSS dynamically
+    if (!document.getElementById('katex-css')) {
+      const link = document.createElement('link')
+      link.id = 'katex-css'
+      link.rel = 'stylesheet'
+      link.href = 'https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css'
+      document.head.appendChild(link)
+    }
 
     marked.use(
       markedHighlight({
@@ -28,15 +31,38 @@ export async function renderMarkdown(content) {
           return hljs.highlight(code, { language }).value;
         }
       }),
-      { renderer } // 커스텀 렌더러 등록
+      markedKatex({
+        throwOnError: false,
+        displayMode: false
+      })
     )
-
-    marked.setOptions({
-      breaks: true
-    })
   }
-  
-  return marked(content || '')
+
+  // Create a new renderer instance for this call to avoid pollution
+  const renderer = new marked.Renderer();
+  const baseUrl = options.baseUrl || '';
+
+  renderer.link = (href, title, text) => {
+    let resolvedHref = href;
+    if (baseUrl && !href.startsWith('http') && !href.startsWith('#')) {
+      try {
+        resolvedHref = new URL(href, baseUrl).href;
+      } catch (e) { /* ignore */ }
+    }
+    return `<a href="${resolvedHref}"${title ? ` title="${title}"` : ''} target="_blank" rel="noopener noreferrer">${text}</a>`;
+  };
+
+  renderer.image = (href, title, text) => {
+    let resolvedHref = href;
+    if (baseUrl && !href.startsWith('http')) {
+      try {
+        resolvedHref = new URL(href, baseUrl).href;
+      } catch (e) { /* ignore */ }
+    }
+    return `<img src="${resolvedHref}"${title ? ` title="${title}"` : ''}${text ? ` alt="${text}"` : ''} style="max-width: 100%; height: auto;">`;
+  };
+
+  return marked.parse(content || '', { renderer, breaks: true })
 }
 
 export async function highlightCode(code, lang) {
